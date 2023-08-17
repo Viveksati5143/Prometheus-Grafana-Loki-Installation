@@ -1,0 +1,42 @@
+---
+apiVersion: eksctl.io/v1alpha5
+
+kind: ClusterConfig
+
+metadata:
+
+  name: demo-cluster  # cluster name
+
+  region: ap-northeast-1  # working region
+
+  version: "1.25"
+
+vpc:
+
+  id: vpc-081888e52xde8e1e  # vpc
+
+  subnets:
+
+    public:
+
+      ap-northeast-1a:
+
+        id: subnet-0ea0d47ed5b32fc  #subnet-id
+
+      ap-northeast-1c:
+
+        id: subnet-0bdd58376a64b51  #subnet-id
+
+managedNodeGroups:
+
+- name: general
+
+  privateNetworking: true
+
+  instanceType: t2.medium
+
+  desiredCapacity: 1
+
+  subnets:
+    - ap-northeast-1a
+    - ap-northeast-1c
