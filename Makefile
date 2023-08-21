@@ -60,6 +60,8 @@ add_grafana:
 helm_update:
 	helm repo update
 
+# Loki Installation
+
 helm_install_loki:
 	helm install loki-stack grafana/loki-stack
 
