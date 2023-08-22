@@ -5,19 +5,19 @@ create_iamserviceaccount:
 	eksctl create iamserviceaccount \
     --name ebs-csi-controller-sa \
     --namespace kube-system \
-    --cluster my-cluster \
+    --cluster demo-cluster \
     --role-name AmazonEKS_EBS_CSI_DriverRole \
     --role-only \
     --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
 	--approve
 
 oidc_approve:
-	eksctl utils associate-iam-oidc-provider --region=ap-northeast-1 --cluster=myEks --approve
+	eksctl utils associate-iam-oidc-provider --region=ap-northeast-1 --cluster=myEks --approve
 
 create_iamserviceaccount:
 
 create_addon:
-	eksctl create addon --name aws-ebs-csi-driver --cluster my-cluster --service-account-role-arn arn:aws:iam::111122223333:role/AmazonEKS_EBS_CSI_DriverRole --force
+	eksctl create addon --name aws-ebs-csi-driver --cluster demo-cluster --service-account-role-arn arn:aws:iam::111122223333:role/AmazonEKS_EBS_CSI_DriverRole --force
 
 create_ns_p:
 	kubectl create namespace prometheus
@@ -25,10 +25,14 @@ create_ns_p:
 helm_add_prometheus:
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts 
 
+helm_update:
+	helm repo update
+
 helm_upgrade_prometheus:
 	helm upgrade -i prometheus prometheus-community/prometheus \
     --namespace prometheus \
-    --set alertmanager.persistentVolume.storageClass="gp2",server.persistentVolume.storageClass="gp2"
+    --set alertmanager.persistentVolume.storageClass="gp2",server.persistentVolume.storageClass="gp2" \
+    --set service.type=LoadBalancer 
 
 kubectl_pods:
 	kubectl get pods -n prometheus
@@ -37,39 +41,57 @@ kubectl_deploy:
 	kubectl --namespace=prometheus port-forward deploy/prometheus-server 9090
 
 # Create grafana.yaml with the contents
+create_grafana:
+	nano grafana.yaml
 
-create_ns_g:
-	kubectl create namespace grafana
-
-helm_install_grafana:
-	helm install grafana grafana/grafana \
-    --namespace grafana \
-    --set persistence.storageClassName="gp2" \
-    --set persistence.enabled=true \
-    --set adminPassword='EKS!sAWSome' \
-    --values grafana.yaml \
-    --set service.type=LoadBalancer
-
-get_all:
-	kubectl get all -n grafana
-
+# create_ns_g:
+# 	kubectl create namespace grafana
 
 add_grafana:
 	helm repo add grafana https://grafana.github.io/helm-charts
 
 helm_update:
-	helm repo update
+
+helm_install_grafana:
+	helm install grafana grafana/grafana \
+    --set persistence.storageClassName="gp2" \
+    --set persistence.enabled=true \
+    --set adminPassword='EKS!pass' \
+    --values grafana.yaml \
+    --set service.type=LoadBalancer 
+# 	--namespace grafana 
+
+get_all:
+	kubectl get all -n grafana
+
+get_pods:
+	kubectl get pods -A
+
+get_svc:
+	kubectl get svc
+
+get_pass:
+	kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 
 # Loki Installation
 
+add_grafana:
+
+helm_update:
+
 helm_install_loki:
-	helm install loki-stack grafana/loki-stack
+	helm install loki grafana/loki-stack
+
+# Uninstallation
 
 uninstall_prometheus:
 	helm uninstall prometheus --namespace prometheus
 
 uninstall_grafana:
-	helm uninstall grafana --namespace grafana
+	helm uninstall grafana
 
 uninstall_loki:
 	helm uninstall loki
+
+delete_cluster:
+	eksctl delete cluster --name demo-cluster
