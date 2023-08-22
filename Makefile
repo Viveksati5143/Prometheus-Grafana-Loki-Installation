@@ -5,19 +5,19 @@ create_iamserviceaccount:
 	eksctl create iamserviceaccount \
     --name ebs-csi-controller-sa \
     --namespace kube-system \
-    --cluster demo-cluster \
+    --cluster <cluster-name> \
     --role-name AmazonEKS_EBS_CSI_DriverRole \
     --role-only \
     --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
 	--approve
 
 oidc_approve:
-	eksctl utils associate-iam-oidc-provider --region=ap-northeast-1 --cluster=myEks --approve
+	eksctl utils associate-iam-oidc-provider --region=<region-name> --cluster=<cluster-name> --approve
 
 create_iamserviceaccount:
 
 create_addon:
-	eksctl create addon --name aws-ebs-csi-driver --cluster demo-cluster --service-account-role-arn arn:aws:iam::111122223333:role/AmazonEKS_EBS_CSI_DriverRole --force
+	eksctl create addon --name aws-ebs-csi-driver --cluster <cluster-name> --service-account-role-arn arn:aws:iam::<account-id>:role/AmazonEKS_EBS_CSI_DriverRole --force
 
 create_ns_p:
 	kubectl create namespace prometheus
@@ -36,6 +36,9 @@ helm_upgrade_prometheus:
 
 kubectl_pods:
 	kubectl get pods -n prometheus
+
+get_svc:
+	kubectl get svc
 
 kubectl_deploy:
 	kubectl --namespace=prometheus port-forward deploy/prometheus-server 9090
@@ -67,11 +70,11 @@ get_all:
 get_pods:
 	kubectl get pods -A
 
-get_svc:
-	kubectl get svc
+get_graf:
+	kubectl get svc grafana
 
 get_pass:
-	kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+	kubectl get secret --namespace <name> grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 
 # Loki Installation
 
@@ -94,4 +97,15 @@ uninstall_loki:
 	helm uninstall loki
 
 delete_cluster:
-	eksctl delete cluster --name demo-cluster
+	eksctl delete cluster --name <cluster-name>
+
+# Additional commands
+
+edit_prom:
+	kubectl edit svc -n prometheus-server
+
+edit_graf:
+	kubectl edit svc grafana
+
+watch_pods:
+	kubectl get pods -w

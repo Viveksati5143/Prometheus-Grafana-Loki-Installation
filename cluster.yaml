@@ -5,7 +5,7 @@ kind: ClusterConfig
 
 metadata:
 
-  name: demo-cluster  # cluster name
+  name: <cluster-name>  # cluster name
 
   region: ap-northeast-1  # working region
 
