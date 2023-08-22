@@ -70,3 +70,6 @@ uninstall_prometheus:
 
 uninstall_grafana:
 	helm uninstall grafana --namespace grafana
+
+uninstall_loki:
+	helm uninstall loki
