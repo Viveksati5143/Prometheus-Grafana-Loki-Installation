@@ -85,6 +85,9 @@ helm_update:
 helm_install_loki:
 	helm install loki grafana/loki-stack
 
+loki_deploy:
+	kubectl port-forward -n loki service/loki-stack-grafana 3000:80
+	
 # Uninstallation
 
 uninstall_prometheus:
