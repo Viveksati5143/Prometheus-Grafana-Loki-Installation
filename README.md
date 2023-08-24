@@ -14,20 +14,17 @@ Make can be installed from [here](https://stackoverflow.com/a/73862277/20540922)
         fetch pass in form of secret key using: 	
             kubectl get secret --namespace <name> grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 
+    4. Add data source -> loki by replacing url with - ```http://loki:3100```
 
-    4. Grafana dashboard in url - ```http://localhost:3100```
+    5. Click on Explore -> data source
 
-    5. Add data source -> loki
+    6. Select Loki
 
-    6. Click on Explore -> data source
+    7. Click on type -> choose app 
 
-    7. Select Loki 
+    8. Click on name -> choose <pod name> to fetch logs from 
 
-    8. Click on type -> choose app 
-
-    9. Click on name -> choose <pod name> to fetch logs from 
-
-    10. Run query
+    9. Run query
 
 ## Conclusion
    
